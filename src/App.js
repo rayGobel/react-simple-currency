@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import CurrencyService from './CurrencyService';
+import AppCurrencyHeader from './AppCurrencyHeader';
+import AppCurrencyList from './AppCurrencyList';
 import './App.css';
 import 'bulma/css/bulma.css';
 
@@ -41,11 +42,13 @@ class App extends Component {
     // Method bindings
     this.removeCurrencyHandler = this.removeCurrencyHandler.bind(this);
     this.changeValuationHandler = this.changeValuationHandler.bind(this);
+    this.changeBaseCurrencyHandler = this.changeBaseCurrencyHandler.bind(this);
   }
 
   componentDidMount() {
     // Initialize currencies state
-    this.getCurrencyRates('USD')
+    const baseCurrency = 'USD';
+    this.getCurrencyRates(baseCurrency)
       .then(currencies => {
         this.setState({
           currencies: currencies
@@ -54,7 +57,7 @@ class App extends Component {
   }
 
   getCurrencyRates(base) {
-    return CurrencyService.getCurrencyRates(base)
+    return CurrencyService.getRates(base)
       .then(result => {
         const rates = result.rates
 
@@ -82,7 +85,22 @@ class App extends Component {
     });
   }
 
+  changeBaseCurrencyHandler(currency) {
+    const name = SYMBOL_TABLE[currency];
+    this.getCurrencyRates(currency)
+      .then(currencies => {
+        this.setState({
+          currencies: currencies,
+          referenceCurrency: {
+            shorthand: currency,
+            name: name
+          }
+        });
+      });
+  }
+
   render() {
+    const currencyName = SYMBOL_TABLE[this.state.referenceCurrency.shorthand];
     return (
       <div className="App container">
         <div className="App-currency card">
@@ -90,21 +108,25 @@ class App extends Component {
 
             <div className="columns">
               <div className="column">
-                <h1 className="title is-4">United States Dollar</h1>
+                <h1 className="title is-4">{currencyName}</h1>
               </div>
             </div>
 
             <div className="columns">
               <div className="column">
                 <AppCurrencyHeader
+                  value={this.state.referenceCurrency.shorthand}
+                  availableCurrencies={SYMBOL_TABLE}
+                  changeBaseCurrency={this.changeBaseCurrencyHandler}
                   changeValuation={this.changeValuationHandler} />
               </div>
             </div>
 
             <div className="columns">
               <div className="column">
-                <AppCurrencyContent
-                currencies={this.state.currencies}
+                <AppCurrencyList
+                availableCurrencies={SYMBOL_TABLE}
+                currencies={this.state.currencies.slice(0, 4)}
                 valuation={this.state.valuation}
                 referenceCurrency={this.state.referenceCurrency}
                 removeCurrency={this.removeCurrencyHandler} />
@@ -113,69 +135,6 @@ class App extends Component {
 
           </div>
         </div>
-      </div>
-    );
-  }
-}
-
-class AppCurrencyHeader extends Component {
-  constructor(props) {
-    super(props);
-    this.changeHandler = this.changeHandler.bind(this);
-  }
-
-  changeHandler(e) {
-    const val = e.target.value;
-    this.props.changeValuation(val);
-  }
-
-  render() {
-    return (
-      <div className="columns">
-        <div className="column is-7">
-          <p>USD</p>
-        </div>
-        <div className="column is-5">
-          <input className="input" onChange={this.changeHandler}></input>
-        </div>
-      </div>
-    )
-  }
-}
-
-class AppCurrencyContent extends Component {
-
-  render() {
-
-    const referenceCurrency = this.props.referenceCurrency;
-    const renderedList = this.props.currencies.map((currency) => {
-      const formatter = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: currency.shorthand,
-        minimumFractionDigits: 2
-      });
-
-      return (
-        <div key={currency.shorthand} className="columns">
-
-          <div className="column is-10">
-            <h1>{ currency.name }</h1>
-            <p>{ formatter.format(currency.rate * this.props.valuation ) }</p>
-            <p>{ currency.rate } { currency.shorthand } = 1 { referenceCurrency.shorthand }</p>
-          </div>
-
-          <div className="column is-2">
-            <button className="button" onClick={(e) => this.props.removeCurrency(currency.name)}>
-              <FontAwesomeIcon icon="times" />
-            </button>
-          </div>
-        </div>
-      );
-    });
-
-    return (
-      <div className="App-currency-content card-content">
-        {renderedList}
       </div>
     );
   }

@@ -3,7 +3,7 @@ import axios from 'axios';
 const BASE_URL = 'https://api.exchangeratesapi.io/latest';
 
 const CurrencyService = {
-  getCurrencyRates(base) {
+  getRates(base) {
     let url = `${BASE_URL}`
 
     if (base) {
