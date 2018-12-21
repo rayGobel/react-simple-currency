@@ -94,6 +94,7 @@ class App extends Component {
       .then(currencies => {
         this.setState({
           currencies: currencies,
+          displayedCurrencies: currencies.slice(0, 4),
           referenceCurrency: {
             shorthand: currency,
             name: name

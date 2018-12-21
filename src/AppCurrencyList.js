@@ -8,12 +8,20 @@ class AppCurrencyList extends Component {
       showAvailableCurrencies: false
     };
     this.addMoreCurrencyHandler = this.addMoreCurrencyHandler.bind(this);
+    this.selectMoreCurrencyHandler = this.selectMoreCurrencyHandler.bind(this);
   }
 
   addMoreCurrencyHandler() {
     this.setState({
       showAvailableCurrencies: true
     });
+  }
+
+  selectMoreCurrencyHandler(currencyName) {
+    this.setState({
+      showAvailableCurrencies: false
+    });
+    this.props.selectMoreCurrencyHandler(currencyName);
   }
 
   render() {
@@ -57,7 +65,7 @@ class AppCurrencyList extends Component {
       : null;
     const currencyList = this.state.showAvailableCurrencies ?
       <CurrencyList
-        selectMoreCurrencyHandler={this.props.selectMoreCurrencyHandler}
+        selectMoreCurrencyHandler={this.selectMoreCurrencyHandler}
         availableCurrencies={notDisplayedCurrencies} />
       : null;
 
