@@ -36,13 +36,15 @@ class App extends Component {
         shorthand: 'USD',
         name: 'US Dollar'
       },
-      valuation: 0
+      valuation: 0,
+      displayedCurrencies: []
     };
 
     // Method bindings
     this.removeCurrencyHandler = this.removeCurrencyHandler.bind(this);
     this.changeValuationHandler = this.changeValuationHandler.bind(this);
     this.changeBaseCurrencyHandler = this.changeBaseCurrencyHandler.bind(this);
+    this.selectMoreCurrencyHandler = this.selectMoreCurrencyHandler.bind(this);
   }
 
   componentDidMount() {
@@ -51,7 +53,8 @@ class App extends Component {
     this.getCurrencyRates(baseCurrency)
       .then(currencies => {
         this.setState({
-          currencies: currencies
+          currencies: currencies,
+          displayedCurrencies: currencies.slice(0, 4)
         });
       })
   }
@@ -75,7 +78,7 @@ class App extends Component {
 
   removeCurrencyHandler(currencyName) {
     this.setState({
-      currencies: this.state.currencies.filter((currency) => currency.name !== currencyName)
+      displayedCurrencies: this.state.displayedCurrencies.filter((currency) => currency.name !== currencyName)
     });
   }
 
@@ -99,8 +102,17 @@ class App extends Component {
       });
   }
 
+  selectMoreCurrencyHandler(newCurrency) {
+    // Take currency from list of currencies
+    let tobeAddedCurrency = this.state.currencies.filter(currency => currency.shorthand === newCurrency );
+    this.setState({
+      displayedCurrencies: this.state.displayedCurrencies.concat(tobeAddedCurrency)
+    });
+  }
+
   render() {
     const currencyName = SYMBOL_TABLE[this.state.referenceCurrency.shorthand];
+
     return (
       <div className="App container">
         <div className="App-currency card">
@@ -125,11 +137,12 @@ class App extends Component {
             <div className="columns">
               <div className="column">
                 <AppCurrencyList
-                availableCurrencies={SYMBOL_TABLE}
-                currencies={this.state.currencies.slice(0, 4)}
-                valuation={this.state.valuation}
-                referenceCurrency={this.state.referenceCurrency}
-                removeCurrency={this.removeCurrencyHandler} />
+                  selectMoreCurrencyHandler={this.selectMoreCurrencyHandler}
+                  availableCurrencies={SYMBOL_TABLE}
+                  currencies={this.state.displayedCurrencies}
+                  valuation={this.state.valuation}
+                  referenceCurrency={this.state.referenceCurrency}
+                  removeCurrency={this.removeCurrencyHandler} />
               </div>
             </div>
 

@@ -20,7 +20,7 @@ class AppCurrencyList extends Component {
 
     const notDisplayedCurrencies = Object.keys(this.props.availableCurrencies)
       .filter(currency => {
-        return !this.props.currencies.some(otherCurrency => otherCurrency.name === currency)
+        return !this.props.currencies.some(otherCurrency => otherCurrency.shorthand === currency)
       });
     console.log('data: ', notDisplayedCurrencies);
 
@@ -56,7 +56,9 @@ class AppCurrencyList extends Component {
       <AddCurrencyBtn addMoreCurrencyHandler={this.addMoreCurrencyHandler} />
       : null;
     const currencyList = this.state.showAvailableCurrencies ?
-      <CurrencyList availableCurrencies={notDisplayedCurrencies} />
+      <CurrencyList
+        selectMoreCurrencyHandler={this.props.selectMoreCurrencyHandler}
+        availableCurrencies={notDisplayedCurrencies} />
       : null;
 
     return (
@@ -86,15 +88,46 @@ class AddCurrencyBtn extends Component {
 }
 
 class CurrencyList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: ''
+    };
+
+    this.clickHandler = this.clickHandler.bind(this);
+    this.selectChangedHandler = this.selectChangedHandler.bind(this);
+  }
+
+  selectChangedHandler(e) {
+    this.setState({
+      value: e.target.value
+    });
+  }
+
+  clickHandler() {
+    if (this.state.value) {
+      this.props.selectMoreCurrencyHandler(this.state.value);
+    }
+  }
+
   render() {
     const options = this.props.availableCurrencies
       .map(currency => <option key={currency} value={currency}>{currency}</option>);
 
     return (
-      <div className="select is-medium">
-        <select>
-          {options}
-        </select>
+      <div className="field has-addons">
+        <div className="control is-expanded">
+          <div className="select is-fullwidth">
+            <select value={this.state.value} onChange={this.selectChangedHandler}>
+              <option value=''>Select currency</option>
+              {options}
+            </select>
+          </div>
+        </div>
+
+        <div className="control">
+          <button type="submit" className="button" onClick={this.clickHandler}>Add currency</button>
+        </div>
       </div>
     );
   }
