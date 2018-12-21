@@ -17,4 +17,4 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl \
     && yarn build
 
 EXPOSE 8080
-CMD ["yarn", "start"]
+CMD ["yarn", "serve"]
