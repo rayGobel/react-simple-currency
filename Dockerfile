@@ -14,7 +14,9 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl \
     && rm yarn-v$YARN_VERSION.tar.gz \
     && apk del .build-deps-yarn \
     && yarn install \
-    && yarn build
+    && yarn build \
+    && rm -rf node_modules \
+    && yarn install --production
 
 EXPOSE 8080
 CMD ["yarn", "serve"]
